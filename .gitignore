@@ -1,0 +1,12 @@
+# vim
+.*.sw[a-z]
+
+# object files
+*.o
+*.so
+
+# build byproducts
+config.save
+ext/mkmf.log
+ext/extconf.h
+ext/viz.png
