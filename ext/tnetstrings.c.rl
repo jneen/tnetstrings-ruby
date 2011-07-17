@@ -81,7 +81,7 @@
   }
 
   # parses the size spec at the start of the payload
-  tnets_size = digit{,10} $collect_payload_size;
+  tnets_size = digit+ $collect_payload_size;
   colon = ':' @mark_ends;
 
   # primitives
