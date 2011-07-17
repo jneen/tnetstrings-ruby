@@ -1,96 +1,125 @@
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <ruby/ruby.h>
-
-// // stolen from flori's json
-// #define LEN(AT, FPC) (FPC - buffer - parser->AT)
-// #define MARK(M,FPC) (parser->M = (FPC) - buffer)
-// #define PTR_TO(F) (buffer + parser->F)
-
-// struct fsm {
-//   int cs;
-//   int p;
-//   int pe;
-// };
+#include "tnetstrings.h"
 
 %%{
-  machine foo;
-  action read_buf { }
+  machine tnetstrings;
+  access parser->;
 
-  action collect_size {
-    size *= 10;
-    size += (*p - '0');
+  action mark_ends {
+    // this marks the start of the payload -
+    // move ahead 2 for the colon and the type spec.
+    parser->payload = p + 2;
+
+    // this is a bit hacky, but I think it's the only way to do it.
+    // only now do we know where the end is, since we've parsed the payload_size.
+    // This will cause EOF actions to be triggered at the end of the payload.
+    // TODO: eventually, have an option to read this from a stream,
+    // which is arguably the whole point.
+    eof = pe = parser->payload + parser->payload_size;
+
+    // assert(pe < str + size, "Holy crap we overfloweded the buffer");
   }
 
-  action parse_int {
-    out = parse_int(p, size);
+  action collect_payload_size {
+    parser->payload_size *= 10;
+    parser->payload_size += CTOI(fc);
   }
-  action parse_str {
-    out = rb_str_new(p+1, size);
+
+  # -*- boolean (!) -*- #
+  action wrap_true  { parser->result = TNETS_WRAP_TRUE;  }
+  action wrap_false { parser->result = TNETS_WRAP_FALSE; }
+
+  # -*- null (~) -*- #
+  action wrap_null  { parser->result = Qnil;   }
+
+  # -*- number (#) -*- #
+  action neg {
+    parser->seen_neg = 1;
+  }
+
+  action collect_num {
+    parser->num_builder *= 10;
+    parser->num_builder += CTOI(fc);
+  }
+
+  action wrap_num {
+    if (parser->seen_neg) parser->num_builder *= -1;
+    parser->result = TNETS_WRAP_NUM(parser->num_builder);
+  }
+
+  # -*- string (,) -*- #
+  action wrap_str {
+    parser->result = TNETS_WRAP_STR(p+1, parser->payload_size);
   }
 
   action parse_dict { }
-  action parse_arr { }
-  action parse_true  { out = Qtrue; }
-  action parse_false { out = Qfalse; }
-  action parse_null  { out = Qnil; }
+  action parse_arr {
+    parse_chunk(p, parser->payload_size);
+  }
+
+  action error {
+    printf("error!\n"); // TODO: real error handling
+  }
 
   # parses the size spec at the start of the payload
-  tnets_size = digit{,10} $collect_size;
-  colon = ':' @read_buf @err{ printf("ERR"); };
+  tnets_size = digit{,10} $collect_payload_size;
+  colon = ':' @mark_ends;
 
-  tnets_int  = '#' @parse_int;
-  tnets_str  = ',' @parse_str;
+  # primitives
+  tnets_num  = '#' ('-' @neg)? (digit+ $collect_num) %/wrap_num;
+  tnets_str  = ',' @wrap_str;
+  # NB: any string that is not "true" will return "false".
+  tnets_bool = '!' ('true' %/wrap_true | !'true' %/wrap_false);
+  tnets_null = '~' %/wrap_null;
+
+  # recursive structures
   tnets_dict = '}' @parse_dict;
   tnets_arr  = ']' @parse_arr;
-  tnets_bool = '!' ('true' @parse_true | 'false' @parse_false);
-  tnets_null = '~' @parse_null;
 
   main := tnets_size colon (
-    tnets_int  |
+    tnets_num  |
     tnets_str  |
     tnets_dict |
     tnets_bool |
     tnets_null
-  );
+  ) @err(error);
 }%%
 
 %% write data;
 
-VALUE parse_int(char* p, int size) {
-  int out = 0, i;
-  // TODO: this is totally unsafe...
-  // check to make sure the things are actually digits.
-  // or roll this into the parser?
-  for (i=0; i<size; i++) {
-    out *= 10;
-    out += (p[i] - '0');
-  }
-
-  return INT2FIX(out);
+int tnets_parser_init(tnets_parser *parser) {
+  %% write init;
 }
 
-VALUE parse(char* str) {
-  int cs, size = 0;
-  char* p = str;
-  char* pe = p + strlen(p) + 1;
-  char* eof;
-  char* payload;
+int parse_chunk(tnets_parser *parser, char *str, int size) {
+  char *p = str;
+  // pe gets re-set once we've parsed the length.
+  // set to 10 characters here because that's the maximum
+  // length of the length spec.
+  char *pe = p + 11;
+  char *eof;
 
-  VALUE out = Qnil;
-
-  %% write init;
   %% write exec;
 
-  return out;
+  return 0;
 }
 
-VALUE rb_parse(VALUE self, VALUE rbstr) {
-  return parse(RSTRING_PTR(rbstr));
+VALUE rb_parse_tnets(VALUE self, VALUE rbstr) {
+  char *tnets = RSTRING_PTR(rbstr);
+  int len = RSTRING_LEN(rbstr);
+
+  tnets_parser *parser = calloc(sizeof(tnets_parser), 1);
+  tnets_parser_init(parser);
+  parse_chunk(parser, tnets, len);
+
+  return parser->result;
 }
 
 void Init_tnetstrings() {
   VALUE module = rb_define_module("TnetstringsCMethods");
 
-  rb_define_method(module, "c_parse", rb_parse, 1);
+  rb_define_method(module, "c_parse", rb_parse_tnets, 1);
 }

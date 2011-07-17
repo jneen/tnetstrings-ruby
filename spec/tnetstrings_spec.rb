@@ -7,7 +7,7 @@ describe TNETS do
     end
 
     it "parses null" do
-      TNETS.load("0:~").should be_nil
+      TNETS.load("0:~").should == nil
     end
 
     it "parses true" do
