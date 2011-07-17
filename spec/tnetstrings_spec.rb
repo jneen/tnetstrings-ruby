@@ -19,8 +19,11 @@ describe TNETS do
     end
 
     it "parses a number" do
-      pending "implementation"
       TNETS.load("2:#32").should == 32
+    end
+
+    it "parses an array" do
+      TNETS.load("10:]2:#322:#84").should == [32, 84]
     end
 
     it "parses a dict" do

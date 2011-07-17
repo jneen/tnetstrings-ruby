@@ -57,7 +57,23 @@
 
   action parse_dict { }
   action parse_arr {
-    parse_chunk(p, parser->payload_size);
+    VALUE arr = TNETS_NEW_ARR;
+    tnets_parser* sub_parser = tnets_parser_new();
+    char* sub_data = parser->payload;
+    int sub_size = parser->payload_size;
+    do {
+      tnets_parser_chunk(sub_parser, sub_data, sub_size);
+      TNETS_ARR_PUSH(arr, sub_parser->result);
+
+      sub_data += (sub_parser->payload_size + 2 + 1);
+      sub_size -= (sub_parser->payload_size + 2 + 1);
+      // reset current state and such
+      tnets_parser_clear(sub_parser);
+
+    } while(sub_size > 0);
+    free(sub_parser);
+
+    parser->result = arr;
   }
 
   action error {
@@ -80,9 +96,10 @@
   tnets_arr  = ']' @parse_arr;
 
   main := tnets_size colon (
+    tnets_dict |
+    tnets_arr  |
     tnets_num  |
     tnets_str  |
-    tnets_dict |
     tnets_bool |
     tnets_null
   ) @err(error);
@@ -94,7 +111,16 @@ int tnets_parser_init(tnets_parser *parser) {
   %% write init;
 }
 
-int parse_chunk(tnets_parser *parser, char *str, int size) {
+int tnets_parser_clear(tnets_parser *parser) {
+  tnets_parser_init(parser);
+  parser->num_builder = 0;
+  parser->seen_neg = 0;
+  parser->result = TNETS_WRAP_NULL;
+  parser->payload = NULL;
+  parser->payload_size = 0;
+}
+
+int tnets_parser_chunk(tnets_parser *parser, char *str, int size) {
   char *p = str;
   // pe gets re-set once we've parsed the length.
   // set to 10 characters here because that's the maximum
@@ -104,18 +130,32 @@ int parse_chunk(tnets_parser *parser, char *str, int size) {
 
   %% write exec;
 
+printf("%s\n", RSTRING_PTR(rb_funcall(parser->result, rb_intern("inspect"), 0)));
   return 0;
+}
+
+tnets_parser *tnets_parser_new(void) {
+  tnets_parser *parser = calloc(sizeof(tnets_parser), 1);
+  tnets_parser_init(parser);
+  return parser;
+}
+
+tnets_parser *parse_str(char *str, int size) {
+  tnets_parser *parser = tnets_parser_new();
+  tnets_parser_chunk(parser, str, size);
+  return parser;
 }
 
 VALUE rb_parse_tnets(VALUE self, VALUE rbstr) {
   char *tnets = RSTRING_PTR(rbstr);
   int len = RSTRING_LEN(rbstr);
 
-  tnets_parser *parser = calloc(sizeof(tnets_parser), 1);
-  tnets_parser_init(parser);
-  parse_chunk(parser, tnets, len);
+  tnets_parser *parser = parse_str(RSTRING_PTR(rbstr), len);
 
-  return parser->result;
+  VALUE result = parser->result;
+  free(parser);
+
+  return result;
 }
 
 void Init_tnetstrings() {
