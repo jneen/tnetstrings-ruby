@@ -10,3 +10,4 @@ config.save
 ext/mkmf.log
 ext/extconf.h
 ext/viz.png
+ext/tnetstrings.c
