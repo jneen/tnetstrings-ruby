@@ -78,6 +78,9 @@
 
   action error {
     printf("error!\n"); // TODO: real error handling
+    printf("p: [%s]\n", p);
+    printf("pe: [%s]\n", pe);
+    printf("str: [%s]\n", str);
   }
 
   # parses the size spec at the start of the payload
