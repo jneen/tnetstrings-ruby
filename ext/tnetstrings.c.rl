@@ -133,7 +133,6 @@ int tnets_parser_chunk(tnets_parser *parser, char *str, int size) {
 
   %% write exec;
 
-printf("%s\n", RSTRING_PTR(rb_funcall(parser->result, rb_intern("inspect"), 0)));
   return 0;
 }
 
