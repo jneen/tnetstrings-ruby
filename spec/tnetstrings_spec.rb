@@ -23,7 +23,7 @@ describe TNETS do
     end
 
     it "parses an array" do
-      TNETS.load("10:]2:#322:#84").should == [32, 84]
+      TNETS.load("17:]2:#322:#844:!true").should == [32, 84, true]
     end
 
     it "parses a dict" do
