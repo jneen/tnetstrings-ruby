@@ -55,7 +55,43 @@
     parser->result = TNETS_WRAP_STR(p+1, parser->payload_size);
   }
 
-  action parse_dict { }
+  action wrap_dict_key {
+    parser->result = TNETS_WRAP_DICT_KEY(p+1, parser->payload_size);
+  }
+
+  action parse_dict {
+    TNETS_T dict = TNETS_NEW_DICT;
+    TNETS_T key;
+    tnets_parser* sub_parser = tnets_parser_new();
+    char* sub_data = parser->payload;
+    int sub_size = parser->payload_size;
+
+    // TODO: seriously DRY this up, if only with #defines
+    do {
+      // XXX HACK.  Ask the ragel guys for a better way to do this.
+      // This sets the "current state" to the entry point for the
+      // dict_key machine, which only accepts strings.
+      sub_parser->cs = tnetstrings_en_dict_key;
+      tnets_parser_chunk(sub_parser, sub_data, sub_size);
+      key = sub_parser->result;
+
+      sub_data += (sub_parser->payload_size + 2 + 1);
+      sub_size -= (sub_parser->payload_size + 2 + 1);
+      tnets_parser_clear(sub_parser);
+
+      tnets_parser_chunk(sub_parser, sub_data, sub_size);
+      TNETS_DICT_ADD(dict, key, sub_parser->result);
+
+      sub_data += (sub_parser->payload_size + 2 + 1);
+      sub_size -= (sub_parser->payload_size + 2 + 1);
+      tnets_parser_clear(sub_parser);
+    } while(sub_size > 0);
+
+    free(sub_parser);
+
+    parser->result = dict;
+  }
+
   action parse_arr {
     VALUE arr = TNETS_NEW_ARR;
     tnets_parser* sub_parser = tnets_parser_new();
@@ -90,6 +126,7 @@
   # primitives
   tnets_num  = '#' ('-' @neg)? (digit+ $collect_num) %/wrap_num;
   tnets_str  = ',' @wrap_str;
+  tnets_dict_key = ',' @wrap_dict_key;
   # NB: any string that is not "true" will return "false".
   tnets_bool = '!' ('true' %/wrap_true | !'true' %/wrap_false);
   tnets_null = '~' %/wrap_null;
@@ -98,14 +135,18 @@
   tnets_dict = '}' @parse_dict;
   tnets_arr  = ']' @parse_arr;
 
-  main := tnets_size colon (
-    tnets_dict |
-    tnets_arr  |
-    tnets_num  |
-    tnets_str  |
-    tnets_bool |
-    tnets_null
+  main := (
+    tnets_size colon (
+      tnets_dict |
+      tnets_arr  |
+      tnets_num  |
+      tnets_str  |
+      tnets_bool |
+      tnets_null
+    )
   ) @err(error);
+
+  dict_key := (tnets_size colon tnets_dict_key) @err(error);
 }%%
 
 %% write data;

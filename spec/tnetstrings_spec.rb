@@ -27,8 +27,7 @@ describe TNETS do
     end
 
     it "parses a dict" do
-      pending "implementation"
-      TNETS.parse(%[16:}1:,a1:#11:,b1:#2]).should == {:a => 1, :b => 2}
+      TNETS.load(%[16:}1:,a1:#11:,b1:#2]).should == {:a => 1, :b => 2}
     end
   end
 

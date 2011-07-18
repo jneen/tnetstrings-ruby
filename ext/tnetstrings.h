@@ -7,12 +7,15 @@
 #define TNETS_WRAP_FALSE (Qfalse)
 #define TNETS_WRAP_NULL (Qnil)
 #define TNETS_WRAP_STR(s,size) (rb_str_new(s,size))
+// TODO: find a better way to symbolize length-specified
+// strings.
+#define TNETS_WRAP_DICT_KEY(k,size) (ID2SYM(rb_to_id(TNETS_WRAP_STR(k,size))))
  
 #define TNETS_NEW_ARR (rb_ary_new())
 #define TNETS_ARR_PUSH(arr,el) (rb_ary_push(arr,el))
 
 #define TNETS_NEW_DICT (rb_hash_new())
-#define TNETS_DICT_ADD(dict,key,val) (rb_hash_add(dict,rb_intern(key),val))
+#define TNETS_DICT_ADD(dict,key,val) (rb_hash_aset(dict,key,val))
 #define TNETS_T VALUE
 
 typedef struct tnets_parser {
