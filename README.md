@@ -15,7 +15,7 @@ You will need a couple of things:
 * Ruby, along with rake and bundler.
 * For testing, you will need a few gems, which will install automatically with a call to `bundle`
 
-To build the project, run `rake build`.  To build and run tests, simply run `rake`.  To see a nice graph representing the state machine parser, install graphviz and run `rake viz` (this will not invoke your C compiler, as it is entirely on the Ragel level).
+To build the project, run `rake build`.  To build and run tests, simply run `rake`.  To see a nice graph representing the state machine parser, install graphviz and run `viewer=#{program to view a png} rake viz` (this will not invoke your C compiler, as it is entirely on the Ragel level).
 
 # OMG how could you possibly make such a n00bish mistake?  Do you even know {C,ragel}?
 Fair warning.  This is not only my first project using ragel, it is also my first project using C - I'm normally a scripting-language guy.  If you are a more experienced developer (i.e. have written C code / designed a ragel state machine before), I would appreciate it a lot if you could let me know of any ways to improve my code.  I'm always looking to improve my craft, and definitely appreciate any and all input.

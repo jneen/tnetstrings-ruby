@@ -48,5 +48,6 @@ desc "Build the native library"
 task :build => mod
 
 task :viz => png do
-  sh "eog #{png}"
+  viewer = ENV['viewer'] || 'eog'
+  sh "#{viewer} #{png}"
 end
