@@ -93,7 +93,7 @@
   }
 
   action parse_arr {
-    VALUE arr = TNETS_NEW_ARR;
+    TNETS_T arr = TNETS_NEW_ARR;
     tnets_parser* sub_parser = tnets_parser_new();
     char* sub_data = parser->payload;
     int sub_size = parser->payload_size;
