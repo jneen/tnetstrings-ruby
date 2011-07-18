@@ -175,7 +175,7 @@ int tnets_parser_chunk(tnets_parser *parser, char *str, int size) {
   // set to 10 characters here because that's the maximum
   // length of the length spec.  Also add one for the colon.
   char *pe = p + ( (size < 11) ? size : 11 );
-  char *eof;
+  char *eof = pe;
 
   %% write exec;
 
