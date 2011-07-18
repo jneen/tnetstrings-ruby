@@ -22,6 +22,10 @@ describe TNETS do
       TNETS.load("2:#32").should == 32
     end
 
+    it "parses a negative number" do
+      TNETS.load("3:#-32")
+    end
+
     it "parses an array" do
       TNETS.load("17:]2:#322:#844:!true").should == [32, 84, true]
     end
@@ -32,5 +36,57 @@ describe TNETS do
   end
 
   context "error cases" do
+    def expect_error(str, *args)
+      expect { TNETS.load(str) }
+        .to raise_error(TNETS::ParserError, *args)
+    end
+
+    context "length spec" do
+      it "requires digits at the front" do
+        expect_error("abc:!true")
+      end
+
+      it "requires a colon before the 10th character" do
+        expect_error("12345678901:!true")
+      end
+
+      it "requires a valid symbol after the colon" do
+        expect_error("0:f")
+      end
+
+      it "requires the data to be at least as long as the length spec" do
+        expect_error("100:!true")
+      end
+    end
+
+    context "null" do
+      it "requires the length to be zero" do
+        pending "handle this case"
+        expect_error("1:~x")
+      end
+    end
+
+    context "bool" do
+      it "returns false given anything but true" do
+        TNETS.load("4:!trub").should == false
+        TNETS.load("3:!sdflkj").should == false
+        TNETS.load("4:!true").should == true
+      end
+    end
+
+    context "number" do
+      it "requires digits only" do
+        pending "handle this case"
+        expect_error("3:#1bc")
+      end
+    end
+
+    context "array" do
+      # TODO
+    end
+
+    context "dict" do
+      # TODO
+    end
   end
 end

@@ -18,6 +18,8 @@
 #define TNETS_DICT_ADD(dict,key,val) (rb_hash_aset(dict,key,val))
 #define TNETS_T VALUE
 
+#define TNETS_ERROR(msg) (rb_raise(eTnetsParserError,msg))
+
 typedef struct tnets_parser {
   int cs;
   int payload_size;

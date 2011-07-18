@@ -4,6 +4,8 @@
 #include <ruby/ruby.h>
 #include "tnetstrings.h"
 
+static VALUE eTnetsParserError;
+
 %%{
   machine tnetstrings;
   access parser->;
@@ -20,7 +22,9 @@
     // which is arguably the whole point.
     eof = pe = parser->payload + parser->payload_size;
 
-    // assert(pe < str + size, "Holy crap we overfloweded the buffer");
+    if (pe > str + size) {
+      TNETS_ERROR("Holy crap we overfloweded the buffer");
+    }
   }
 
   action collect_payload_size {
@@ -113,10 +117,11 @@
   }
 
   action error {
-    printf("error!\n"); // TODO: real error handling
+    printf("error!\n");
     printf("p: [%s]\n", p);
     printf("pe: [%s]\n", pe);
     printf("str: [%s]\n", str);
+    TNETS_ERROR("parse error"); // TODO: more helpful messages
   }
 
   # parses the size spec at the start of the payload
@@ -204,5 +209,6 @@ VALUE rb_parse_tnets(VALUE self, VALUE rbstr) {
 void Init_tnetstrings() {
   VALUE mTnetstrings = rb_define_module("TNETS");
 
-  rb_define_method(module, "c_parse", rb_parse_tnets, 1);
+  rb_define_method(mTnetstrings, "c_parse", rb_parse_tnets, 1);
+  eTnetsParserError = rb_define_class_under(mTnetstrings, "ParserError", rb_eIOError);
 }
