@@ -202,7 +202,7 @@ VALUE rb_parse_tnets(VALUE self, VALUE rbstr) {
 }
 
 void Init_tnetstrings() {
-  VALUE module = rb_define_module("TnetstringsCMethods");
+  VALUE mTnetstrings = rb_define_module("TNETS");
 
   rb_define_method(module, "c_parse", rb_parse_tnets, 1);
 }
