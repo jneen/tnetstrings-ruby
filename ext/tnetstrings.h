@@ -2,6 +2,8 @@
 // if you'd like to use the ragel parser
 // for another language or framework,
 // override these.
+// if anyone has suggestions on how to do this better,
+// plz let me know.
 #define TNETS_WRAP_NUM(n) (INT2FIX(n))
 #define TNETS_WRAP_TRUE (Qtrue)
 #define TNETS_WRAP_FALSE (Qfalse)
