@@ -61,7 +61,6 @@ describe TNETS do
 
     context "null" do
       it "requires the length to be zero" do
-        pending "handle this case"
         expect_error("1:~x")
       end
     end
@@ -76,7 +75,6 @@ describe TNETS do
 
     context "number" do
       it "requires digits only" do
-        pending "handle this case"
         expect_error("3:#1bc")
       end
     end

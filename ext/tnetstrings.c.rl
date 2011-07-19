@@ -124,17 +124,20 @@ static VALUE eTnetsParserError;
     TNETS_ERROR("parse error"); // TODO: more helpful messages
   }
 
+  # kind of a hack, but represents the end of the chunk.
+  end = (any @error)?;
+
   # parses the size spec at the start of the payload
   tnets_size = digit+ $collect_payload_size;
   colon = ':' @mark_ends;
 
   # primitives
-  tnets_num  = '#' ('-' @neg)? (digit+ $collect_num) %/wrap_num;
+  tnets_num  = '#' (('-' @neg)? (digit+ $collect_num)) %/wrap_num <: end;
   tnets_str  = ',' @wrap_str;
   tnets_dict_key = ',' @wrap_dict_key;
   # NB: any string that is not "true" will return "false".
   tnets_bool = '!' ('true' %/wrap_true | !'true' %/wrap_false);
-  tnets_null = '~' %/wrap_null;
+  tnets_null = ('~' %/wrap_null) end;
 
   # recursive structures
   tnets_dict = '}' @parse_dict;
