@@ -116,10 +116,6 @@ static VALUE eTnetsParserError;
   }
 
   action error {
-    printf("error!\n");
-    printf("p: [%s]\n", p);
-    printf("pe: [%s]\n", pe);
-    printf("str: [%s]\n", str);
     TNETS_ERROR("parse error"); // TODO: more helpful messages
   }
 
