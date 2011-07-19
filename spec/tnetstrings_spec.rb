@@ -35,6 +35,26 @@ describe TNETS do
     end
   end
 
+  context "degenerate cases" do
+    it "parses an empty dict" do
+      pending "handle this case"
+      TNETS.load(%|0:}|).should == {}
+    end
+
+    it "parses an empty array" do
+      pending "handle this case"
+      TNETS.load(%|0:]|).should == []
+    end
+
+    it "parses an empty string" do
+      TNETS.load(%|0:,|).should == ''
+    end
+
+    it "parses an empty bool" do
+      TNETS.load(%|0:!|).should == false
+    end
+  end
+
   context "error cases" do
     def expect_error(str, *args)
       expect { TNETS.load(str) }
