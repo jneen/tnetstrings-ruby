@@ -80,11 +80,34 @@ describe TNETS do
     end
 
     context "array" do
-      # TODO
+      it "requires sane lengths" do
+        expect_error("5:]10:,abcde")
+      end
     end
 
     context "dict" do
-      # TODO
+      it "requires sane lengths" do
+        expect_error("13:}1:,a10:,abcde")
+      end
+
+      it "requires keys to be strings" do
+        # { 1 => 2 }
+        expect_error("8:}1:#11:#2")
+        # { nil => 2 }
+        expect_error("7:}0:~1:#2")
+        # { false => 2 }
+        expect_error("7:}0:!1:#2")
+      end
+
+      it "requires a balanced hash" do
+        # one item only
+        # { :a => }
+        expect_error("4:}1:,a")
+
+        # three items
+        # { :a => 1, :b => }
+        expect_error("12:}1:,a1:#11:,b")
+      end
     end
   end
 end
