@@ -71,7 +71,7 @@ static VALUE eTnetsParserError;
     int sub_size = parser->payload_size;
 
     // TODO: seriously DRY this up, if only with #defines
-    do {
+    while(sub_size > 0) {
       // XXX HACK.  Ask the ragel guys for a better way to do this.
       // This sets the "current state" to the entry point for the
       // dict_key machine, which only accepts strings.
@@ -89,7 +89,7 @@ static VALUE eTnetsParserError;
       sub_data += (sub_parser->payload_size + 2 + 1);
       sub_size -= (sub_parser->payload_size + 2 + 1);
       tnets_parser_clear(sub_parser);
-    } while(sub_size > 0);
+    }
 
     free(sub_parser);
 
@@ -101,7 +101,7 @@ static VALUE eTnetsParserError;
     tnets_parser* sub_parser = tnets_parser_new();
     char* sub_data = parser->payload;
     int sub_size = parser->payload_size;
-    do {
+    while (sub_size > 0) {
       tnets_parser_chunk(sub_parser, sub_data, sub_size);
       TNETS_ARR_PUSH(arr, sub_parser->result);
 
@@ -109,8 +109,7 @@ static VALUE eTnetsParserError;
       sub_size -= (sub_parser->payload_size + 2 + 1);
       // reset current state and such
       tnets_parser_clear(sub_parser);
-
-    } while(sub_size > 0);
+    }
     free(sub_parser);
 
     parser->result = arr;

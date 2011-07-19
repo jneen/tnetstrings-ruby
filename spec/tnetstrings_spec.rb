@@ -37,12 +37,10 @@ describe TNETS do
 
   context "degenerate cases" do
     it "parses an empty dict" do
-      pending "handle this case"
       TNETS.load(%|0:}|).should == {}
     end
 
     it "parses an empty array" do
-      pending "handle this case"
       TNETS.load(%|0:]|).should == []
     end
 
