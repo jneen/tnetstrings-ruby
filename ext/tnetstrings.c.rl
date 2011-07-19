@@ -22,8 +22,8 @@ static VALUE eTnetsParserError;
     // which is arguably the whole point.
     eof = pe = parser->payload + parser->payload_size;
 
-    if (pe > str + size) {
-      TNETS_ERROR("Holy crap we overfloweded the buffer");
+    if (pe - str > size) {
+      TNETS_ERROR("Oops I almost accidentally the buffer.");
     }
   }
 
