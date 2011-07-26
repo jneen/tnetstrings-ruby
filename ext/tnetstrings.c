@@ -23,7 +23,8 @@ TNETS_VALUE rb_tnets_parse(TNETS_VALUE self, TNETS_VALUE rbstr);
 // to the wrapper.
 #define tnets_render_string TNETS_WRAP_STRING
 
-TNETS_VALUE tnets_render_number(char* payload, size_t len) {
+TNETS_VALUE
+tnets_render_number(char* payload, size_t len) {
   size_t i;
   int number = 0; // TODO: use a type that can handle
                   // larger numbers without wrapping.
@@ -52,7 +53,8 @@ TNETS_VALUE tnets_render_number(char* payload, size_t len) {
   return TNETS_WRAP_NUMBER(number);
 }
 
-TNETS_VALUE tnets_render_bool(char* payload, size_t len) {
+TNETS_VALUE
+tnets_render_bool(char* payload, size_t len) {
   // TODO: do this better.
   if (len != 4) return TNETS_WRAP_FALSE;
   size_t i;
@@ -65,13 +67,15 @@ TNETS_VALUE tnets_render_bool(char* payload, size_t len) {
   return TNETS_WRAP_TRUE;
 }
 
-TNETS_VALUE tnets_render_null(char* payload, size_t len) {
+TNETS_VALUE
+tnets_render_null(char* payload, size_t len) {
   if (len != 0) TNETS_PARSER_ERROR("null must have an empty payload.");
 
   return TNETS_WRAP_NULL;
 }
 
-TNETS_VALUE tnets_render_list(char* payload, size_t len) {
+TNETS_VALUE
+tnets_render_list(char* payload, size_t len) {
   char *tmp_payload = payload;
   size_t sub_len;
   TNETS_VALUE list = TNETS_NEW_LIST();
@@ -91,7 +95,8 @@ TNETS_VALUE tnets_render_list(char* payload, size_t len) {
 
 #define tnets_render_dict_key TNETS_WRAP_DICT_KEY
 
-TNETS_VALUE tnets_render_dict(char* payload, size_t len) {
+TNETS_VALUE
+tnets_render_dict(char* payload, size_t len) {
   char *tmp_payload = payload;
   TNETS_VALUE dict = TNETS_NEW_DICT();
   while(len > 0) {
@@ -180,7 +185,8 @@ tnets_parse(char *data, size_t len, char** remain) {
   }
 }
 
-VALUE rb_tnets_parse(VALUE self, VALUE rbstr) {
+VALUE
+rb_tnets_parse(VALUE self, VALUE rbstr) {
   char* data = RSTRING_PTR(rbstr);
   size_t len = RSTRING_LEN(rbstr);
   return tnets_parse(data, len, NULL);

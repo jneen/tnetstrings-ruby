@@ -40,4 +40,5 @@ typedef enum tnets_type_tag_e {
 *  The third argument is an output parameter; if non-NULL it will
 *  receive the unparsed remainder of the string.
 */
-VALUE tnets_parse(char *data, size_t len, char** remain);
+TNETS_VALUE
+tnets_parse(char *data, size_t len, char** remain);
