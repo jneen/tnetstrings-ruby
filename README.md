@@ -23,7 +23,6 @@ Fair warning.  This is my first project using C - I'm normally a scripting-langu
 This library is currently super-alpha - as in not even fully implemented yet.  Here are some of the things on my list:
 
 * parsing from a stream rather than an in-memory string (this is what tnetstrings are for, after all)
-* dumping Ruby values to tnetstrings
 * handle and test more error cases, and fix a few that I know aren't handled
 * separating the parser from the Ruby implementation, in case anyone else wants to use it for another purpose (like embedding into another language, for example).
 
