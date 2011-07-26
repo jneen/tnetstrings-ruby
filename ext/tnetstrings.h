@@ -18,6 +18,8 @@ typedef enum tnets_type_tag_e {
 #define IS_NUMERIC(ch) ('0' <= ch && ch <= '9')
 #define CTOI(ch) (ch - '0');
 
+#define TNETS_VALUE VALUE
+
 #define TNETS_WRAP_STRING(s,l) (rb_str_new(s,l))
 #define TNETS_WRAP_NUMBER INT2FIX
 #define TNETS_WRAP_NULL Qnil
