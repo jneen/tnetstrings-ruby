@@ -1,5 +1,17 @@
 This is a general-purpose [tnetstrings][] library for Ruby.
 
+# Installation
+
+```
+% gem install tnetstrings
+```
+
+# Usage
+
+The `TNETS` module has the same familiar interface as `JSON` - just `TNETS.load(tnetstring)` and `TNETS.dump(obj)` (or `obj.to_tnets`).  To dump arbitrary objects, define `#as_tnets`.  As a convenience, `#as_json` is used otherwise, if it is defined.
+
+If you have an `Enumerable` you'd like to stream, call `my_enum.stream_tnets(io)`, and your `io` will receive one write for every object your enumerable yields.
+
 # Why would I want such a thing?
 
 Tnetstrings (or "tagged netstrings") are a data serialization format that support the same data serialization structures as JSON\*.  You can read more about it on the tnetstrings site at <http://tnetstrings.org>, but the main advantage is that all the juicy bits are length-specified instead of delimiter-specified, making it much safer and faster to parse from a socket.
