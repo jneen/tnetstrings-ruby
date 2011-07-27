@@ -10,6 +10,7 @@ config.save
 ext/mkmf.log
 ext/extconf.h
 ext/viz.png
+*.gem
 
 # misc
 tmp/
