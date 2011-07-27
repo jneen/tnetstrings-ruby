@@ -80,3 +80,15 @@ class Hash
     "#{out.size}:#{out}}"
   end
 end
+
+class Object
+  def to_tnets(*a, &b)
+    if respond_to? :as_tnets
+      as_tnets(*a).to_tnets
+    elsif respond_to? :as_json
+      as_json(*a).to_tnets
+    else
+      method_missing(:to_tnets, *a, &b)
+    end
+  end
+end
