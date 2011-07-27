@@ -47,9 +47,11 @@ class Fixnum
 end
 
 module Enumerable
-  def to_tnets(*)
+  def to_tnets(*a, &b)
+    return each_tnets(&b) if block_given?
+
     out = ''
-    each { |x| out << x.to_tnets }
+    each { |x| out << x.to_tnets(*a) }
     "#{out.size}:#{out}]"
   end
 

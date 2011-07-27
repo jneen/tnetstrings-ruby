@@ -160,6 +160,19 @@ describe TNETS do
       TNETS.load(TNETS.dump(arr)).should == arr
     end
 
+    it "streams an enumerable" do
+      sio = StringIO.new
+      enum = Class.new do
+        include Enumerable
+        def each(&b)
+          [1, true, "three", nil].each(&b)
+        end
+      end.new
+
+      enum.stream_tnets(sio)
+      sio.string.should == enum.map(&:to_tnets).join
+    end
+
     it "dumps a hash" do
       hsh = { :a => 1, :b => true, :c => "three", :d => nil }
       hsh.to_tnets.should == '38:1:a,1:1#1:b,4:true!1:c,5:three,1:d,0:~}'
